@@ -25,6 +25,9 @@ type BasicMessage struct {
 	// if voice message
 	Format string `xml:"Format"`
 
+	// if voice recognization enable, it should be "腾讯微信团队"
+	Recognition string `xml:"Recognition"`
+
 	// if any mulit media message
 	MediaID string `xml:"MediaId"`
 
