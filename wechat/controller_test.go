@@ -32,11 +32,21 @@ func TestAccess(t *testing.T) {
 	})
 }
 
-func TestMessage(t *testing.T) {
-	router := gin.New()
-	router.POST("/", Message)
+type fakeSaver struct {
+	msg BasicMessage
+}
 
+func (f *fakeSaver) Save(msg BasicMessage) error {
+	f.msg = msg
+	return nil
+}
+
+func TestMessage(t *testing.T) {
 	Convey("check handle message from wechat", t, func() {
+		var saver fakeSaver
+		router := gin.New()
+		router.POST("/", MessageHandler(&saver))
+
 		Convey("common message", func() {
 			const text = "<xml>" +
 				"<ToUserName><![CDATA[toUser]]></ToUserName>" +
@@ -50,14 +60,21 @@ func TestMessage(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("POST", "/", strings.NewReader(text))
 
-			router.ServeHTTP(w, req)
+			Convey("should return success if ok", func() {
+				router.ServeHTTP(w, req)
 
-			body, err := ioutil.ReadAll(w.Result().Body)
-			if err != nil {
-				panic(err)
-			}
+				body, err := ioutil.ReadAll(w.Result().Body)
+				if err != nil {
+					panic(err)
+				}
 
-			So(string(body), ShouldEqual, "success")
+				So(string(body), ShouldEqual, "success")
+			})
+
+			Convey("should write message to storage", func() {
+				router.ServeHTTP(w, req)
+				So(saver.msg.Content, ShouldEqual, "this is a test")
+			})
 		})
 	})
 }
