@@ -48,19 +48,11 @@ func TestMessage(t *testing.T) {
 		router.POST("/", MessageHandler(&saver))
 
 		Convey("common message", func() {
-			const text = "<xml>" +
-				"<ToUserName><![CDATA[toUser]]></ToUserName>" +
-				"<FromUserName><![CDATA[fromUser]]></FromUserName>" +
-				"<CreateTime>1348831860</CreateTime>" +
-				"<MsgType><![CDATA[text]]></MsgType>" +
-				"<Content><![CDATA[this is a test]]></Content>" +
-				"<MsgId>1234567890123456</MsgId>" +
-				"</xml>"
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("POST", "/", strings.NewReader(text))
 
 			Convey("should return success if ok", func() {
+				req, _ := http.NewRequest("POST", "/", strings.NewReader("<xml></xml>"))
 				router.ServeHTTP(w, req)
 
 				body, err := ioutil.ReadAll(w.Result().Body)
@@ -72,8 +64,42 @@ func TestMessage(t *testing.T) {
 			})
 
 			Convey("should write message to storage", func() {
+				const text = "<xml>" +
+					"<ToUserName><![CDATA[toUser]]></ToUserName>" +
+					"<FromUserName><![CDATA[fromUser]]></FromUserName>" +
+					"<CreateTime>1348831860</CreateTime>" +
+					"<MsgType><![CDATA[text]]></MsgType>" +
+					"<Content><![CDATA[this is a test]]></Content>" +
+					"<MsgId>1234567890123456</MsgId>" +
+					"</xml>"
+
+				req, _ := http.NewRequest("POST", "/", strings.NewReader(text))
 				router.ServeHTTP(w, req)
 				So(saver.msg.Content, ShouldEqual, "this is a test")
+			})
+
+			Convey("should write image message", func() {
+				const text = "<xml>" +
+					"<ToUserName><![CDATA[toUser]]></ToUserName>" +
+					"<FromUserName><![CDATA[fromUser]]></FromUserName>" +
+					"<CreateTime>1348831860</CreateTime>" +
+					"<MsgType><![CDATA[image]]></MsgType>" +
+					"<PicUrl><![CDATA[this is a url]]></PicUrl>" +
+					"<MediaId><![CDATA[media_id]]></MediaId>" +
+					"<MsgId>1234567890123456</MsgId>" +
+					"</xml>"
+
+				req, _ := http.NewRequest("POST", "/", strings.NewReader(text))
+				router.ServeHTTP(w, req)
+				Convey("type should be image", func() {
+					So(saver.msg.MsgType, ShouldEqual, "image")
+				})
+				Convey("content should be media_id", func() {
+					So(saver.msg.MediaID, ShouldEqual, "media_id")
+				})
+				Convey("pic url should set", func() {
+					So(saver.msg.PicURL, ShouldEqual, "this is a url")
+				})
 			})
 		})
 	})
