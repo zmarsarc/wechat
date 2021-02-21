@@ -20,7 +20,12 @@ type BasicMessage struct {
 	Content string `xml:"Content"`
 
 	// if image message
-	PicURL  string `xml:"PicUrl"`
+	PicURL string `xml:"PicUrl"`
+
+	// if voice message
+	Format string `xml:"Format"`
+
+	// if any mulit media message
 	MediaID string `xml:"MediaId"`
 
 	MsgID string `xml:"MsgId"`

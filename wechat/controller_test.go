@@ -101,6 +101,28 @@ func TestMessage(t *testing.T) {
 					So(saver.msg.PicURL, ShouldEqual, "this is a url")
 				})
 			})
+
+			Convey("should write voice message", func() {
+				const text = "<xml>" +
+					"<ToUserName><![CDATA[toUser]]></ToUserName>" +
+					"<FromUserName><![CDATA[fromUser]]></FromUserName>" +
+					"<CreateTime>1357290913</CreateTime>" +
+					"<MsgType><![CDATA[voice]]></MsgType>" +
+					"<MediaId><![CDATA[media_id]]></MediaId>" +
+					"<Format><![CDATA[Format]]></Format>" +
+					"<MsgId>1234567890123456</MsgId>" +
+					"</xml>"
+
+				req, _ := http.NewRequest("POST", "/", strings.NewReader(text))
+				router.ServeHTTP(w, req)
+
+				Convey("message type should be voice", func() {
+					So(saver.msg.MsgType, ShouldEqual, "voice")
+				})
+				Convey("format should be format", func() {
+					So(saver.msg.Format, ShouldEqual, "Format")
+				})
+			})
 		})
 	})
 }
