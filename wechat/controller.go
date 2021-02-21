@@ -6,3 +6,8 @@ import "github.com/gin-gonic/gin"
 func Access(c *gin.Context) {
 	c.String(200, c.Query("echostr"))
 }
+
+// Message handle message which send from wechat server
+func Message(c *gin.Context) {
+	c.String(200, "success")
+}
