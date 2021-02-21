@@ -145,6 +145,35 @@ func TestMessage(t *testing.T) {
 					So(saver.msg.ThumbMediaID, ShouldEqual, "thumb_media_id")
 				})
 			})
+
+			Convey("should support link message", func() {
+				const text = "<xml>" +
+					"<ToUserName><![CDATA[toUser]]></ToUserName>" +
+					"<FromUserName><![CDATA[fromUser]]></FromUserName>" +
+					"<CreateTime>1351776360</CreateTime>" +
+					"<MsgType><![CDATA[link]]></MsgType>" +
+					"<Title><![CDATA[公众平台官网链接]]></Title>" +
+					"<Description><![CDATA[公众平台官网链接]]></Description>" +
+					"<Url><![CDATA[url]]></Url>" +
+					"<MsgId>1234567890123456</MsgId>" +
+					"</xml>"
+
+				req, _ := http.NewRequest("POST", "/", strings.NewReader(text))
+				router.ServeHTTP(w, req)
+
+				Convey("type should be link", func() {
+					So(saver.msg.MsgType, ShouldEqual, "link")
+				})
+				Convey("title should right", func() {
+					So(saver.msg.Title, ShouldEqual, "公众平台官网链接")
+				})
+				Convey("Description should right", func() {
+					So(saver.msg.Description, ShouldEqual, "公众平台官网链接")
+				})
+				Convey("url should right", func() {
+					So(saver.msg.URL, ShouldEqual, "url")
+				})
+			})
 		})
 	})
 }

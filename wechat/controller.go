@@ -34,6 +34,11 @@ type BasicMessage struct {
 	// if video message
 	ThumbMediaID string `xml:"ThumbMediaId"`
 
+	// if link message
+	Title       string `xml:"Title"`
+	Description string `xml:"Description"`
+	URL         string `xml:"Url"`
+
 	MsgID int64 `xml:"MsgId"`
 }
 
