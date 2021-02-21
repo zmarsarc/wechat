@@ -16,6 +16,9 @@ type BasicMessage struct {
 	CreateTime   int    `xml:"CreateTime"`
 	MsgType      string `xml:"MsgType"`
 
+	// if message
+	MsgID int64 `xml:"MsgId"`
+
 	// if common text message
 	Content string `xml:"Content"`
 
@@ -39,7 +42,17 @@ type BasicMessage struct {
 	Description string `xml:"Description"`
 	URL         string `xml:"Url"`
 
-	MsgID int64 `xml:"MsgId"`
+	// if event
+	Event string `xml:"Event"`
+
+	// if scan QR code event
+	EventKey string `xml:"EventKey"`
+	Ticket   string `xml:"Ticket"`
+
+	// if report location event
+	Latitude  float64 `xml:"Latitude"`
+	Longitude float64 `xml:"Longitude"`
+	Precision float64 `xml:"Precision"`
 }
 
 // MessageSaver define those who can save wechat message should implem

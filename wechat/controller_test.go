@@ -175,5 +175,63 @@ func TestMessage(t *testing.T) {
 				})
 			})
 		})
+
+		Convey("event support", func() {
+			w := httptest.NewRecorder()
+
+			Convey("scan qr code", func() {
+				const text = "<xml>" +
+					"<ToUserName><![CDATA[toUser]]></ToUserName>" +
+					"<FromUserName><![CDATA[FromUser]]></FromUserName>" +
+					"<CreateTime>123456789</CreateTime>" +
+					"<MsgType><![CDATA[event]]></MsgType>" +
+					"<Event><![CDATA[subscribe]]></Event>" +
+					"<EventKey><![CDATA[qrscene_123123]]></EventKey>" +
+					"<Ticket><![CDATA[TICKET]]></Ticket>" +
+					"</xml>"
+
+				req, _ := http.NewRequest("POST", "/", strings.NewReader(text))
+				router.ServeHTTP(w, req)
+
+				Convey("msg type should be event", func() {
+					So(saver.msg.MsgType, ShouldEqual, "event")
+				})
+				Convey("event should be subscribe", func() {
+					So(saver.msg.Event, ShouldEqual, "subscribe")
+				})
+				Convey("event key should be qrscene_123123", func() {
+					So(saver.msg.EventKey, ShouldEqual, "qrscene_123123")
+				})
+				Convey("ticket should be TICKET", func() {
+					So(saver.msg.Ticket, ShouldEqual, "TICKET")
+				})
+			})
+
+			Convey("location svent", func() {
+				const text = "<xml>" +
+					"<ToUserName><![CDATA[toUser]]></ToUserName>" +
+					"<FromUserName><![CDATA[fromUser]]></FromUserName>" +
+					"<CreateTime>123456789</CreateTime>" +
+					"<MsgType><![CDATA[event]]></MsgType>" +
+					"<Event><![CDATA[LOCATION]]></Event>" +
+					"<Latitude>23.137466</Latitude>" +
+					"<Longitude>113.352425</Longitude>" +
+					"<Precision>119.385040</Precision>" +
+					"</xml>"
+
+				req, _ := http.NewRequest("POST", "/", strings.NewReader(text))
+				router.ServeHTTP(w, req)
+
+				Convey("latitude should 23.137466", func() {
+					So(saver.msg.Latitude-23.137466, ShouldBeLessThan, 0.000001)
+				})
+				Convey("longitude should 113.352425", func() {
+					So(saver.msg.Longitude-113.352425, ShouldBeLessThan, 0.000001)
+				})
+				Convey("precision should 119.385040", func() {
+					So(saver.msg.Precision-119.385040, ShouldBeLessThan, 0.000001)
+				})
+			})
+		})
 	})
 }
