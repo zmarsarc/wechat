@@ -25,13 +25,16 @@ type BasicMessage struct {
 	// if voice message
 	Format string `xml:"Format"`
 
-	// if voice recognization enable, it should be "腾讯微信团队"
+	// if voice recognization enable
 	Recognition string `xml:"Recognition"`
 
 	// if any mulit media message
 	MediaID string `xml:"MediaId"`
 
-	MsgID string `xml:"MsgId"`
+	// if video message
+	ThumbMediaID string `xml:"ThumbMediaId"`
+
+	MsgID int64 `xml:"MsgId"`
 }
 
 // MessageSaver define those who can save wechat message should implem

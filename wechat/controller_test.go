@@ -123,6 +123,28 @@ func TestMessage(t *testing.T) {
 					So(saver.msg.Format, ShouldEqual, "Format")
 				})
 			})
+
+			Convey("should support video message", func() {
+				const text = "<xml>" +
+					"<ToUserName><![CDATA[toUser]]></ToUserName>" +
+					"<FromUserName><![CDATA[fromUser]]></FromUserName>" +
+					"<CreateTime>1357290913</CreateTime>" +
+					"<MsgType><![CDATA[video]]></MsgType>" +
+					"<MediaId><![CDATA[media_id]]></MediaId>" +
+					"<ThumbMediaId><![CDATA[thumb_media_id]]></ThumbMediaId>" +
+					"<MsgId>1234567890123456</MsgId>" +
+					"</xml>"
+
+				req, _ := http.NewRequest("POST", "/", strings.NewReader(text))
+				router.ServeHTTP(w, req)
+
+				Convey("type should be video", func() {
+					So(saver.msg.MsgType, ShouldEqual, "video")
+				})
+				Convey("thumb media id should right", func() {
+					So(saver.msg.ThumbMediaID, ShouldEqual, "thumb_media_id")
+				})
+			})
 		})
 	})
 }
