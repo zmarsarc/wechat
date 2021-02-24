@@ -1,7 +1,9 @@
 package wechat
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -58,4 +60,48 @@ func (c *Client) AccessToken() (string, error) {
 	}
 
 	return token.AccessToken, nil
+}
+
+// CustomerServiceStaff specify a customer service staff's information
+type CustomerServiceStaff struct {
+	Account  string `json:"kf_account"`
+	NickName string `json:"nickname"`
+	Password string `json:"password"`
+}
+
+type commonResp struct {
+	ErrCode int    `json:"errcde"`
+	ErrMsg  string `json:"errmsg"`
+}
+
+// AddCustomerServiceStaff add a new customer service staff to wechat
+func (c *Client) AddCustomerServiceStaff(staff CustomerServiceStaff) {
+	query := url.Values{}
+	query.Add("access_token", "")
+
+	requestURL := c.hostname + "/customeservice/kfaccount/add?" + query.Encode()
+	data, err := json.Marshal(staff)
+	if err != nil {
+		panic(err)
+	}
+
+	resp, err := http.Post(requestURL, "json", bytes.NewReader(data))
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	data, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var msg commonResp
+	if err = json.Unmarshal(data, &msg); err != nil {
+		panic(err)
+	}
+
+	if msg.ErrCode != 0 {
+		panic(errors.New(msg.ErrMsg))
+	}
 }
